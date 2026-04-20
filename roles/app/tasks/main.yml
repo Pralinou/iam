@@ -1,0 +1,30 @@
+---
+- name: Pull Keycloak image
+  community.docker.docker_image:
+    name: "{{ app_image }}"
+    source: pull
+
+- name: Stop existing container
+  community.docker.docker_container:
+    name: "{{ app_container_name }}"
+    state: absent
+
+- name: Start Keycloak container
+  community.docker.docker_container:
+    name: "{{ app_container_name }}"
+    image: "{{ app_image }}"
+    command: "{{ app_command }}"
+    state: started
+    restart_policy: "{{ app_restart_policy }}"
+    ports:
+      - "{{ app_port }}:{{ app_port }}"
+    env: "{{ app_env }}"
+
+- name: Wait for Keycloak to be ready
+  uri:
+    url: "http://localhost:{{ app_port }}/health/ready"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 10

@@ -1,0 +1,15 @@
+---
+# Déploiement local : Docker est déjà disponible via le socket monté
+# Les conteneurs de test ont SSH + Python3 + docker SDK pré-installés
+
+- name: Deploy application containers
+  hosts: app_servers
+  become: true
+  roles:
+    - app
+
+- name: Configure Nginx load balancer
+  hosts: lb
+  become: true
+  roles:
+    - nginx_lb

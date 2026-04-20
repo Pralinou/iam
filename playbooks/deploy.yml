@@ -1,0 +1,24 @@
+---
+- name: Install Docker on all hosts
+  hosts: all
+  become: true
+  roles:
+    - docker
+
+- name: Deploy PostgreSQL
+  hosts: db
+  become: true
+  roles:
+    - postgres
+
+- name: Deploy Keycloak containers
+  hosts: app_servers
+  become: true
+  roles:
+    - app
+
+- name: Configure Nginx load balancer
+  hosts: lb
+  become: true
+  roles:
+    - nginx_lb

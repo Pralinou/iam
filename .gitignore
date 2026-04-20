@@ -1,0 +1,18 @@
+# Secrets & vault
+*.vault
+.vault_pass
+vault_password_file
+secrets/
+.env
+
+# Fichiers locaux Ansible
+inventory/hosts_local.ini
+*.retry
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Logs
+*.log

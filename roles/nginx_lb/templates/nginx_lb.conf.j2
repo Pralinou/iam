@@ -1,0 +1,46 @@
+upstream {{ app_name }}_backend {
+    {{ lb_algorithm }};
+
+    {% for host in groups['app_servers'] %}
+    server {{ hostvars[host]['backend_address'] | default(hostvars[host]['ansible_host']) }}:{{ app_port }}
+        max_fails={{ lb_health_check_fails }}
+        fail_timeout={{ lb_health_check_interval }}s;
+    {% endfor %}
+
+    keepalive 32;
+}
+
+server {
+    listen {{ lb_port }};
+    server_name _;
+
+    access_log /var/log/nginx/{{ app_name }}_access.log;
+    error_log  /var/log/nginx/{{ app_name }}_error.log;
+
+    # Keycloak génère de gros cookies/tokens JWT
+    proxy_buffer_size       128k;
+    proxy_buffers           4 256k;
+    proxy_busy_buffers_size 256k;
+
+    location / {
+        proxy_pass            http://{{ app_name }}_backend;
+        proxy_http_version    1.1;
+        proxy_set_header      Connection        "";
+        proxy_set_header      Host              $host;
+        proxy_set_header      X-Real-IP         $remote_addr;
+        proxy_set_header      X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header      X-Forwarded-Proto $scheme;
+        proxy_set_header      X-Forwarded-Host  $host;
+        proxy_set_header      X-Forwarded-Port  $server_port;
+
+        proxy_connect_timeout 5s;
+        proxy_send_timeout    60s;
+        proxy_read_timeout    60s;
+    }
+
+    location /health {
+        access_log off;
+        return 200 "OK\n";
+        add_header Content-Type text/plain;
+    }
+}

@@ -1,0 +1,7 @@
+---
+nginx_worker_processes: auto
+nginx_worker_connections: 1024
+lb_algorithm: least_conn
+lb_health_check_interval: 10
+lb_health_check_fails: 3
+lb_health_check_passes: 2

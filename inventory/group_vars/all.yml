@@ -1,0 +1,20 @@
+---
+app_name: iam
+app_image: "quay.io/keycloak/keycloak:24.0"
+app_port: 8080
+lb_port: 80
+
+keycloak_admin_user: admin
+keycloak_admin_password: "changeme_in_vault"
+
+db_host: "{{ hostvars[groups['db'][0]]['ansible_host'] }}"
+db_port: 5432
+db_name: keycloak
+db_user: keycloak
+db_password: "changeme_in_vault"
+
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose-plugin
