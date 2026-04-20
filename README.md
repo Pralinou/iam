@@ -1,7 +1,7 @@
 # Load Balancing SSO Keycloak avec Ansible
 
 Déploiement automatisé d'un portail SSO Keycloak en cluster avec load balancing Nginx via Ansible.
-Projet personnel pour manipulé ansible + docker.
+Projet personnel pour manipuler Ansible + Docker.
 
 > **Mots de passe par défaut** — Les credentials fournis dans ce dépôt sont des valeurs d'exemple pour un usage local/test.
 >
@@ -9,21 +9,17 @@ Projet personnel pour manipulé ansible + docker.
 > |---|---|---|
 > | Admin Keycloak | `admin / admin` | `docker-compose.yml` → `KEYCLOAK_ADMIN_PASSWORD` |
 > | Base de données | `keycloak_password` | `docker-compose.yml` → `POSTGRES_PASSWORD` / `KC_DB_PASSWORD` |
-> | Admin LDAP | `ldap_admin_password` | `docker-compose.yml` → `LDAP_ADMIN_PASSWORD` |
-> | Lecture seule LDAP | `ldap_readonly_password` | `docker-compose.yml` → `LDAP_READONLY_USER_PASSWORD` |
 > | Admin Ansible | `changeme_in_vault` | `inventory/group_vars/all.yml` |
 >
 > Chiffrement avec [ansible-vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html).
 
-| Conteneur        | Rôle                          | Port    |
-|------------------|-------------------------------|---------|
-| `iam_lb`         | Nginx – load balancer         | 80      |
-| `lb_1`           | Keycloak instance 1           | 8080    |
-| `lb_2`           | Keycloak instance 2           | 8080    |
-| `lb_3`           | Keycloak instance 3           | 8080    |
-| `iam_postgres`   | Base de données partagée      | 5432    |
-| `iam_ldap`       | Annuaire OpenLDAP             | 389     |
-| `iam_ldap_admin` | Interface phpLDAPadmin        | 8081    |
+| Conteneur      | Rôle                     | Port |
+|----------------|--------------------------|------|
+| `iam_lb`       | Nginx – load balancer    | 80   |
+| `lb_1`         | Keycloak instance 1      | 8080 |
+| `lb_2`         | Keycloak instance 2      | 8080 |
+| `lb_3`         | Keycloak instance 3      | 8080 |
+| `iam_postgres` | Base de données partagée | 5432 |
 
 ## Prérequis
 
@@ -42,14 +38,8 @@ ansible-galaxy collection install -r requirements.yml
 
 ### 1. Démarrer l'infrastructure
 
-Sans annuaire LDAP :
 ```bash
 docker compose up -d
-```
-
-Avec annuaire LDAP (fichier local, non versionné) :
-```bash
-docker compose -f docker-compose.yml -f docker-compose.ldap.yml up -d
 ```
 
 Vérifie que tous les conteneurs sont up :
@@ -66,14 +56,9 @@ Les instances Keycloak mettent ~60s à démarrer (initialisation de la base).
 Console d'administration Keycloak → [http://localhost/admin](http://localhost/admin)
 - Login : `admin` / Mot de passe : `admin`
 
-**Annuaire LDAP** (phpLDAPadmin) → [http://localhost:8081](http://localhost:8081)
-- Login DN : `cn=admin,dc=iam,dc=local`
-- Mot de passe : `ldap_admin_password`
-
 ### 3. Vérifier le load balancing
 
 ```bash
-# Voir quelle instance répond
 for i in 1 2 3; do
   curl -s http://localhost/health/ready && echo " → OK"
 done
@@ -148,13 +133,14 @@ ansible-playbook playbooks/scale.yml -e "target_hosts=app4,app5"
 
 ## Reste à faire
 
-**Mise en place d'un annauire openldap**
+**Déploiement des comptes Keycloak**
+Créer et configurer les utilisateurs, groupes et rôles dans Keycloak via Ansible pour automatiser la gestion des comptes.
 
-** Racco LDAP → Keycloak**
-Connecter l'annuaire OpenLDAP à Keycloak pour que les utilisateurs LDAP puissent se connecter via le portail SSO.
+**Samba Active Directory (optionnel)**
+Éventuellement déployer un Samba AD et le connecter à Keycloak pour gérer les comptes depuis un domaine Active Directory.
 
 **Centralisation des logs**
-Collecter les logs de tous les services (Keycloak, Nginx, OpenLDAP) dans un outil centralisé pour faciliter la supervision.
+Collecter les logs de tous les services (Keycloak, Nginx) dans un outil centralisé pour faciliter la supervision.
 
 **VIP + certificats TLS**
 Mettre en place une IP virtuelle pour la haute disponibilité et activer HTTPS sur le load balancer avec un certificat SSL.
@@ -168,17 +154,8 @@ Mettre en place une IP virtuelle pour la haute disponibilité et activer HTTPS s
 ├── ansible.cfg
 ├── requirements.yml
 ├── docker-compose.yml              # stack principale (versionnée)
-├── docker-compose.ldap.yml         # annuaire LDAP (non versionné)
 ├── docker/
-│   ├── nginx.conf                  # config Nginx pour docker-compose
-│   └── Dockerfile                  # image SSH+Python3 (tests Ansible)
-├── inventory/                      # non versionné (IPs et secrets)
-│   ├── hosts.ini                   # inventaire production
-│   ├── hosts_local.ini             # inventaire local
-│   └── group_vars/
-│       ├── all.yml                 # variables globales
-│       ├── app_servers.yml         # config Keycloak
-│       └── lb.yml                  # config Nginx
+│   └── nginx.conf                  # config Nginx pour docker-compose
 ├── roles/
 │   ├── docker/                     # installation de Docker
 │   ├── postgres/                   # déploiement PostgreSQL
@@ -186,9 +163,7 @@ Mettre en place une IP virtuelle pour la haute disponibilité et activer HTTPS s
 │   └── nginx_lb/                   # configuration du load balancer
 └── playbooks/
     ├── deploy.yml                  # déploiement complet (production)
-    ├── deploy_local.yml            # déploiement local
     ├── rolling_update.yml          # mise à jour sans downtime
     └── scale.yml                   # ajout de nouveaux noeuds
 ```
 
-> `inventory/` et `docker-compose.ldap.yml` sont dans `.gitignore` — à créer localement à partir des exemples de ce README.
