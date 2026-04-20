@@ -1,6 +1,9 @@
 # Annuaire LDAP (local uniquement)
 docker-compose.ldap.yml
 
+# Inventaire (contient des IPs et infos d'infrastructure)
+inventory/
+
 # Secrets & vault
 *.vault
 .vault_pass
