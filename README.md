@@ -1,4 +1,4 @@
-# IAM - Load Balancing SSO Keycloak avec Ansible
+# Load Balancing SSO Keycloak avec Ansible
 
 Déploiement automatisé d'un portail SSO Keycloak en cluster avec load balancing Nginx via Ansible.
 
@@ -8,18 +8,21 @@ Déploiement automatisé d'un portail SSO Keycloak en cluster avec load balancin
 > |---|---|---|
 > | Admin Keycloak | `admin / admin` | `docker-compose.yml` → `KEYCLOAK_ADMIN_PASSWORD` |
 > | Base de données | `keycloak_password` | `docker-compose.yml` → `POSTGRES_PASSWORD` / `KC_DB_PASSWORD` |
+> | Admin LDAP | `ldap_admin_password` | `docker-compose.yml` → `LDAP_ADMIN_PASSWORD` |
+> | Lecture seule LDAP | `ldap_readonly_password` | `docker-compose.yml` → `LDAP_READONLY_USER_PASSWORD` |
 > | Admin Ansible | `changeme_in_vault` | `inventory/group_vars/all.yml` |
 >
 > En production, chiffre les secrets avec [ansible-vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html).
 
-
-| Conteneur      | Rôle                          | Port    |
-|----------------|-------------------------------|---------|
-| `iam_lb`       | Nginx – load balancer         | 80      |
-| `lb_1`         | Keycloak instance 1           | 8080    |
-| `lb_2`         | Keycloak instance 2           | 8080    |
-| `lb_3`         | Keycloak instance 3           | 8080    |
-| `iam_postgres` | Base de données partagée      | 5432    |
+| Conteneur        | Rôle                          | Port    |
+|------------------|-------------------------------|---------|
+| `iam_lb`         | Nginx – load balancer         | 80      |
+| `lb_1`           | Keycloak instance 1           | 8080    |
+| `lb_2`           | Keycloak instance 2           | 8080    |
+| `lb_3`           | Keycloak instance 3           | 8080    |
+| `iam_postgres`   | Base de données partagée      | 5432    |
+| `iam_ldap`       | Annuaire OpenLDAP             | 389     |
+| `iam_ldap_admin` | Interface phpLDAPadmin        | 8081    |
 
 ## Prérequis
 
@@ -50,13 +53,16 @@ docker compose ps
 
 Les instances Keycloak mettent ~60s à démarrer (initialisation de la base).
 
-### 2. Accéder au portail SSO
+### 2. Accéder aux interfaces
 
-Ouvrir [http://localhost](http://localhost) → portail Keycloak
+**Portail SSO Keycloak** → [http://localhost](http://localhost)
 
-Console d'administration : [http://localhost/admin](http://localhost/admin)
-- Login : `admin`
-- Mot de passe : `admin`
+Console d'administration Keycloak → [http://localhost/admin](http://localhost/admin)
+- Login : `admin` / Mot de passe : `admin`
+
+**Annuaire LDAP** (phpLDAPadmin) → [http://localhost:8081](http://localhost:8081)
+- Login DN : `cn=admin,dc=iam,dc=local`
+- Mot de passe : `ldap_admin_password`
 
 ### 3. Vérifier le load balancing
 
@@ -131,6 +137,19 @@ Ajoute les hôtes dans `inventory/hosts.ini`, puis :
 ```bash
 ansible-playbook playbooks/scale.yml -e "target_hosts=app4,app5"
 ```
+
+---
+
+## Reste à faire
+
+**Fédération LDAP → Keycloak**
+Connecter l'annuaire OpenLDAP à Keycloak pour que les utilisateurs LDAP puissent se connecter via le portail SSO.
+
+**Centralisation des logs**
+Collecter les logs de tous les services (Keycloak, Nginx, OpenLDAP) dans un outil centralisé pour faciliter la supervision.
+
+**VIP + certificats TLS**
+Mettre en place une IP virtuelle pour la haute disponibilité et activer HTTPS sur le load balancer avec un certificat SSL.
 
 ---
 

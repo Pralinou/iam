@@ -77,6 +77,38 @@ services:
     networks:
       - iam_network
 
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: iam_ldap
+    environment:
+      LDAP_ORGANISATION: "IAM Organisation"
+      LDAP_DOMAIN: "iam.local"
+      LDAP_ADMIN_PASSWORD: "ldap_admin_password"
+      LDAP_CONFIG_PASSWORD: "ldap_config_password"
+      LDAP_READONLY_USER: "true"
+      LDAP_READONLY_USER_USERNAME: "readonly"
+      LDAP_READONLY_USER_PASSWORD: "ldap_readonly_password"
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+    ports:
+      - "389:389"
+    networks:
+      - iam_network
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: iam_ldap_admin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: iam_ldap
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "8081:80"
+    depends_on:
+      - openldap
+    networks:
+      - iam_network
+
   nginx:
     image: nginx:alpine
     container_name: iam_lb
@@ -93,6 +125,8 @@ services:
 
 volumes:
   postgres_data:
+  ldap_data:
+  ldap_config:
 
 networks:
   iam_network:
