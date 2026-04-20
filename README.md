@@ -12,7 +12,7 @@ Déploiement automatisé d'un portail SSO Keycloak en cluster avec load balancin
 > | Lecture seule LDAP | `ldap_readonly_password` | `docker-compose.yml` → `LDAP_READONLY_USER_PASSWORD` |
 > | Admin Ansible | `changeme_in_vault` | `inventory/group_vars/all.yml` |
 >
- chiffrement avec [ansible-vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html).
+> En production, chiffre les secrets avec [ansible-vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html).
 
 | Conteneur        | Rôle                          | Port    |
 |------------------|-------------------------------|---------|
