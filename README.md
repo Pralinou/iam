@@ -1,6 +1,7 @@
 # Load Balancing SSO Keycloak avec Ansible
 
 Déploiement automatisé d'un portail SSO Keycloak en cluster avec load balancing Nginx via Ansible.
+Projet personnel pour manipulé ansible + docker.
 
 > **Mots de passe par défaut** — Les credentials fournis dans ce dépôt sont des valeurs d'exemple pour un usage local/test.
 >
