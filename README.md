@@ -148,7 +148,9 @@ ansible-playbook playbooks/scale.yml -e "target_hosts=app4,app5"
 
 ## Reste à faire
 
-**Fédération LDAP → Keycloak**
+**Mise en place d'un annauire openldap**
+
+** Racco LDAP → Keycloak**
 Connecter l'annuaire OpenLDAP à Keycloak pour que les utilisateurs LDAP puissent se connecter via le portail SSO.
 
 **Centralisation des logs**
