@@ -41,12 +41,17 @@ ansible-galaxy collection install -r requirements.yml
 
 ### 1. Démarrer l'infrastructure
 
+Sans annuaire LDAP :
 ```bash
 docker compose up -d
 ```
 
-Vérifie que tous les conteneurs sont up :
+Avec annuaire LDAP (fichier local, non versionné) :
+```bash
+docker compose -f docker-compose.yml -f docker-compose.ldap.yml up -d
+```
 
+Vérifie que tous les conteneurs sont up :
 ```bash
 docker compose ps
 ```

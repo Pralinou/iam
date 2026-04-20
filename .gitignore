@@ -1,3 +1,6 @@
+# Annuaire LDAP (local uniquement)
+docker-compose.ldap.yml
+
 # Secrets & vault
 *.vault
 .vault_pass
