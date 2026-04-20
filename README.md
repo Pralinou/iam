@@ -167,25 +167,28 @@ Mettre en place une IP virtuelle pour la haute disponibilité et activer HTTPS s
 .
 ├── ansible.cfg
 ├── requirements.yml
-├── docker-compose.yml             # stack locale complète
+├── docker-compose.yml              # stack principale (versionnée)
+├── docker-compose.ldap.yml         # annuaire LDAP (non versionné)
 ├── docker/
-│   ├── nginx.conf                 # config Nginx pour docker-compose
-│   └── Dockerfile                 # image SSH+Python3 (tests Ansible)
-├── inventory/
-│   ├── hosts.ini                  # inventaire production
-│   ├── hosts_local.ini            # inventaire local (conteneurs SSH)
+│   ├── nginx.conf                  # config Nginx pour docker-compose
+│   └── Dockerfile                  # image SSH+Python3 (tests Ansible)
+├── inventory/                      # non versionné (IPs et secrets)
+│   ├── hosts.ini                   # inventaire production
+│   ├── hosts_local.ini             # inventaire local
 │   └── group_vars/
-│       ├── all.yml                # variables globales
-│       ├── app_servers.yml        # config Keycloak
-│       └── lb.yml                 # config Nginx
+│       ├── all.yml                 # variables globales
+│       ├── app_servers.yml         # config Keycloak
+│       └── lb.yml                  # config Nginx
 ├── roles/
-│   ├── docker/                    # installation de Docker
-│   ├── postgres/                  # déploiement PostgreSQL
-│   ├── app/                       # déploiement Keycloak
-│   └── nginx_lb/                  # configuration du load balancer
+│   ├── docker/                     # installation de Docker
+│   ├── postgres/                   # déploiement PostgreSQL
+│   ├── app/                        # déploiement Keycloak
+│   └── nginx_lb/                   # configuration du load balancer
 └── playbooks/
-    ├── deploy.yml                 # déploiement complet (production)
-    ├── deploy_local.yml           # déploiement local (conteneurs SSH)
-    ├── rolling_update.yml         # mise à jour sans downtime
-    └── scale.yml                  # ajout de nouveaux noeuds
+    ├── deploy.yml                  # déploiement complet (production)
+    ├── deploy_local.yml            # déploiement local
+    ├── rolling_update.yml          # mise à jour sans downtime
+    └── scale.yml                   # ajout de nouveaux noeuds
 ```
+
+> `inventory/` et `docker-compose.ldap.yml` sont dans `.gitignore` — à créer localement à partir des exemples de ce README.
