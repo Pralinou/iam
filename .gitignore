@@ -1,0 +1,24 @@
+# Inventaire (contient des IPs et infos d'infrastructure)
+inventory/
+
+# Secrets & vault
+# Les fichiers *_vault.yml chiffrés par ansible-vault PEUVENT être commités
+# Les fichiers en clair contenant des secrets sont exclus :
+*.vault
+.vault_pass
+vault_password_file
+secrets/
+.env
+group_vars/*_vault.yml.plain
+
+# Fichiers locaux Ansible
+inventory/hosts_local.ini
+*.retry
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Logs
+*.log

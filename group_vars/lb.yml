@@ -1,0 +1,12 @@
+---
+# Port d'écoute du load balancer Nginx
+lb_port: 80
+
+# Algorithme de répartition de charge (least_conn, ip_hash, round_robin)
+lb_algorithm: least_conn
+
+# Nombre d'échecs avant de sortir un backend du pool
+lb_health_check_fails: 3
+
+# Durée (secondes) pendant laquelle un backend reste exclu après échec
+lb_health_check_interval: 30

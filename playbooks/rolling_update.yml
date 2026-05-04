@@ -1,0 +1,38 @@
+---
+# Rolling update: met à jour les conteneurs un par un sans downtime
+- name: Rolling update of application containers
+  hosts: app_servers
+  become: true
+  serial: 1
+  max_fail_percentage: 0
+
+  pre_tasks:
+    - name: Remove host from load balancer before update
+      community.docker.docker_container:
+        name: "{{ app_container_name }}"
+        state: stopped
+      delegate_to: "{{ groups['lb'][0] }}"
+      ignore_errors: true
+
+    - name: Wait for active connections to drain
+      pause:
+        seconds: 5
+
+  roles:
+    - app
+
+  post_tasks:
+    - name: Verify container health after update
+      community.docker.docker_container_info:
+        name: "{{ app_container_name }}"
+      register: container_info
+      until: container_info.container.State.Health.Status == "healthy"
+      retries: 12
+      delay: 5
+
+    - name: Reload Nginx to re-add host in upstream
+      service:
+        name: nginx
+        state: reloaded
+      delegate_to: "{{ groups['lb'][0] }}"
+      become: true

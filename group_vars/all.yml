@@ -1,0 +1,11 @@
+---
+# Paquets Docker installés sur tous les hôtes (rôle docker)
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+# Nom de l'application (utilisé pour nommer volumes, containers, logs nginx)
+app_name: keycloak

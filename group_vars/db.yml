@@ -1,0 +1,8 @@
+---
+# Base de données PostgreSQL
+db_name: keycloak
+db_user: keycloak
+db_port: 5432
+
+# Mot de passe défini dans group_vars/db_vault.yml (chiffré ansible-vault)
+db_password: "{{ vault_db_password }}"

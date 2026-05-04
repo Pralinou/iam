@@ -1,0 +1,34 @@
+---
+- name: Pull PostgreSQL image
+  community.docker.docker_image:
+    name: postgres:15-alpine
+    source: pull
+
+- name: Create PostgreSQL data volume
+  community.docker.docker_volume:
+    name: "{{ app_name }}_postgres_data"
+    state: present
+
+- name: Start PostgreSQL container
+  community.docker.docker_container:
+    name: "{{ app_name }}_postgres"
+    image: postgres:15-alpine
+    state: started
+    restart_policy: always
+    env:
+      POSTGRES_DB: "{{ db_name }}"
+      POSTGRES_USER: "{{ db_user }}"
+      POSTGRES_PASSWORD: "{{ db_password }}"
+    volumes:
+      - "{{ app_name }}_postgres_data:/var/lib/postgresql/data"
+    ports:
+      - "{{ db_port }}:5432"
+
+- name: Wait for PostgreSQL to be ready
+  community.docker.docker_container_exec:
+    container: "{{ app_name }}_postgres"
+    command: pg_isready -U {{ db_user }}
+  register: pg_ready
+  until: pg_ready.rc == 0
+  retries: 15
+  delay: 5
